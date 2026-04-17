@@ -12,9 +12,9 @@ namespace application.Services
             this.embedService = embedService;
         }
 
-        public async Task SeedDocumentAsync(string documentContent, string sourceFileName, string collectionName = "nucleotidz", int chunkSize = 200, int overlap = 50)
+        public async Task SeedDocumentAsync(string documentContent, string sourceFileName, int chunkSize = 200, int overlap = 50)
         {
-            await embedService.SeedDataAsync(documentContent, sourceFileName, collectionName, chunkSize, overlap);
+            await embedService.SeedDataAsync(documentContent, sourceFileName, chunkSize, overlap);
         }
     }
 }

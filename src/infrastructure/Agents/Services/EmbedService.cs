@@ -23,7 +23,7 @@
             vectorStore = new RedisVectorStore(redis.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
         }
 
-        public async Task SeedDataAsync(string documentContent, string sourceFileName, string collectionName = "nucleotidz", int chunkSize = 200, int overlap = 50)
+        public async Task SeedDataAsync(string documentContent, string sourceFileName, int chunkSize = 200, int overlap = 50)
         {
             if (string.IsNullOrWhiteSpace(documentContent))
             {
@@ -40,7 +40,7 @@
                 throw new ArgumentException("Chunk size must be greater than 0", nameof(chunkSize));
             }
 
-            var documentCollection = vectorStore.GetCollection<Guid, VectorModel>(collectionName);
+            var documentCollection = vectorStore.GetCollection<Guid, VectorModel>("nucleotidz");
             await documentCollection.EnsureCollectionDeletedAsync();
             await documentCollection.EnsureCollectionExistsAsync();
 

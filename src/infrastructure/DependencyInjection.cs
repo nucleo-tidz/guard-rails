@@ -5,6 +5,7 @@ using infrastructure.Options;
 using infrastructure.Agents.Services;
 using application.Services.Interfaces;
 using infrastructure.Agents;
+using infrastructure.Agents.Adaptors;
 
 namespace infrastructure
 {
@@ -12,7 +13,8 @@ namespace infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         =>
-            services.AddScoped<IEmbedService,EmbedService>()
+            services.AddScoped<IEmbedService, EmbedService>()
+            .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
             .AddScoped<INucleotidzAgent,NucleotidzAgent>();
           
   

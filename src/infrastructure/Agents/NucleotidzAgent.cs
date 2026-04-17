@@ -18,7 +18,7 @@
               {
                   ChatOptions = new ChatOptions()
                   {
-                      Instructions = "You are a  Shiptech Assistant helping users with container shipping services. Provide information about our shipping solutions, help users find the best container options for their cargo needs, answer questions about shipping routes, vessel schedules, port information, and booking procedures. Guide users through the container selection process based on cargo type, weight, dimensions, and shipping requirements.",
+                      Instructions = "You are a shiptech Agent providing user information on shiptech company, you can also guide use which container is best to book based on user's need",
                       ToolMode = ChatToolMode.Auto,
                   },
                   Description = "A  shiptech company assistant",

@@ -43,7 +43,6 @@
                     await documentSeedingService.SeedDocumentAsync(
                         documentContent,
                         request.File.FileName,
-                        request.CollectionName,
                         request.ChunkSize,
                         request.Overlap);
                 }

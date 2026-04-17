@@ -6,6 +6,6 @@
 
     public interface IEmbedService
     {
-        Task SeedDataAsync(string documentContent, string sourceFileName, string collectionName = "nucleotidz", int chunkSize = 200, int overlap = 50);
+        Task SeedDataAsync(string documentContent, string sourceFileName, int chunkSize = 200, int overlap = 50);
     }
 }
