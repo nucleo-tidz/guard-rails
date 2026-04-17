@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
 
+    using application.Services.Interfaces;
+
     using infrastructure.Agents.Model;
 
     using Microsoft.Extensions.AI;
@@ -10,11 +12,10 @@
 
     using StackExchange.Redis;
 
-    public class EmbedService
+    public class EmbedService: IEmbedService
     {
         private readonly RedisVectorStore vectorStore;
-        private const int DefaultChunkSize = 200;
-        private const int DefaultOverlap = 50;
+
 
         public EmbedService(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)
         {
@@ -22,7 +23,7 @@
             vectorStore = new RedisVectorStore(redis.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
         }
 
-        public async Task SeedDataAsync(string documentContent, string sourceFileName, string collectionName = "nucleotidz", int chunkSize = DefaultChunkSize, int overlap = DefaultOverlap)
+        public async Task SeedDataAsync(string documentContent, string sourceFileName, string collectionName = "nucleotidz", int chunkSize = 200, int overlap = 50)
         {
             if (string.IsNullOrWhiteSpace(documentContent))
             {

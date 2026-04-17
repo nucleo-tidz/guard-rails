@@ -2,20 +2,20 @@
 {
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using infrastructure.Agents.Services;
+    using application.Services.Interfaces;
     using api.RequestModels;
 
     [Route("api/[controller]")]
     [ApiController]
-    public class AgentController(EmbedService embedService) : ControllerBase
+    public class AgentController(IDocumentSeedingService documentSeedingService, INucleotidzAgent nucleotidzAgent) : ControllerBase
     {
         [HttpGet("chat/{message}/{username}/thread/{threadId}")]
         [HttpGet("chat/{message}/{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Chat(string username)
+        public async Task<IActionResult> Chat(string message, string username, string? threadId)
         {
-
-            return Ok();
+            var response = await nucleotidzAgent.Start(threadId, username, message);
+            return Ok(response);
         }
 
         [HttpPost("seed-document")]
@@ -28,18 +28,36 @@
             {
                 return BadRequest(ModelState);
             }
-            using (var reader = new StreamReader(request.File.OpenReadStream()))
-            {
-                string documentContent = await reader.ReadToEndAsync();
 
-                await embedService.SeedDataAsync(
-                    documentContent,
-                    request.File.FileName,
-                    request.CollectionName,
-                    request.ChunkSize,
-                    request.Overlap);
+            if (request.File == null || request.File.Length == 0)
+            {
+                return BadRequest(new { error = "File is required" });
             }
-            return Ok(new { message = $"Document '{request.File.FileName}' seeded successfully" });
+
+            try
+            {
+                using (var reader = new StreamReader(request.File.OpenReadStream()))
+                {
+                    string documentContent = await reader.ReadToEndAsync();
+
+                    await documentSeedingService.SeedDocumentAsync(
+                        documentContent,
+                        request.File.FileName,
+                        request.CollectionName,
+                        request.ChunkSize,
+                        request.Overlap);
+                }
+
+                return Ok(new { message = $"Document '{request.File.FileName}' seeded successfully" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while seeding the document", details = ex.Message });
+            }
         }
     }
 }

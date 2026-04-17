@@ -3,16 +3,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using infrastructure.Options;
 using infrastructure.Agents.Services;
+using application.Services.Interfaces;
+using infrastructure.Agents;
 
 namespace infrastructure
 {
     public static class DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton<EmbedService>();
-            return services;
-        }
+        =>
+            services.AddScoped<IEmbedService,EmbedService>()
+            .AddScoped<INucleotidzAgent,NucleotidzAgent>();
+          
   
         public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
         {

@@ -12,7 +12,7 @@
 
     using StackExchange.Redis;
 
-    internal class TextSearchAdapter
+    internal class TextSearchAdapter : ITextSearchAdapter
     {
         private readonly RedisVectorStore vectorStore;
         public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)

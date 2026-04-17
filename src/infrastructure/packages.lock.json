@@ -304,6 +304,16 @@
         "resolved": "10.0.4",
         "contentHash": "EK8wJVxnVfeCzchnEqVjIfZDpVIcmjfjUs9x1nzI41X2naPGT57QjoHlQJma2vDQUxEtPQiGv/v90mwcflx6mQ=="
       },
+      "application": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.6, )",
+          "model": "[1.0.0, )"
+        }
+      },
+      "model": {
+        "type": "Project"
+      },
       "Microsoft.Extensions.AI": {
         "type": "CentralTransitive",
         "requested": "[9.8.0, )",

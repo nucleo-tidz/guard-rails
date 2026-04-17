@@ -179,13 +179,20 @@
         "resolved": "10.0.4",
         "contentHash": "EK8wJVxnVfeCzchnEqVjIfZDpVIcmjfjUs9x1nzI41X2naPGT57QjoHlQJma2vDQUxEtPQiGv/v90mwcflx6mQ=="
       },
+      "application": {
+        "type": "Project",
+        "dependencies": {
+          "model": "[1.0.0, )"
+        }
+      },
       "infrastructure": {
         "type": "Project",
         "dependencies": {
           "Azure.AI.OpenAI": "[2.1.0, )",
           "Microsoft.Agents.AI": "[1.1.0, )",
           "Microsoft.Agents.AI.OpenAI": "[1.1.0, )",
-          "Microsoft.SemanticKernel.Connectors.Redis": "[1.74.0-preview, )"
+          "Microsoft.SemanticKernel.Connectors.Redis": "[1.74.0-preview, )",
+          "application": "[1.0.0, )"
         }
       },
       "model": {
