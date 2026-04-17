@@ -10,11 +10,12 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Primitives" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" />
 
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Agents\" />
+    <Folder Include="Agents\Dtos\" />
   </ItemGroup>
 
 </Project>

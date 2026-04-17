@@ -20,6 +20,7 @@
     <PackageVersion Include="Microsoft.SemanticKernel.Agents.Abstractions" Version="1.63.0" />
     <PackageVersion Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.63.0-preview" />
     <PackageVersion Include="Microsoft.SemanticKernel.Agents.Core" Version="1.63.0" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.74.0-preview" />
     <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.4" />
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.4" />
     <PackageVersion Include="System.Drawing.Common" Version="9.0.8" />
