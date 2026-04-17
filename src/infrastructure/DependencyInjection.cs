@@ -18,9 +18,10 @@ namespace infrastructure
         =>
             services.AddScoped<IEmbedService, EmbedService>()
             .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
-            .AddScoped<INucleotidzAgent,NucleotidzAgent>();
-          
-  
+            .AddScoped<INucleotidzAgent, NucleotidzAgent>();
+
+
+
         public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
         {
             var section = configuration.GetSection(AzureOpenAIOptions.SectionName);
@@ -42,14 +43,25 @@ namespace infrastructure
             services.AddEmbeddingGenerator<string, Embedding<float>>(client.GetEmbeddingClient(options.EmbeddingModelName).AsIEmbeddingGenerator());
             return services;
         }
-        public static IServiceCollection AddGuardRail(this IServiceCollection services, IConfiguration configuration)        {
-            
+
+        public static IServiceCollection AddGuardRail(this IServiceCollection services, IConfiguration configuration)
+        {
+            var section = configuration.GetSection(ContentSafetyOptions.SectionName);
+
+            var options = Microsoft.Extensions.Configuration.ConfigurationBinder.Get<ContentSafetyOptions>(section)
+                ?? throw new InvalidOperationException($"Missing configuration section: {ContentSafetyOptions.SectionName}");
+
+            services.Configure<ContentSafetyOptions>(s =>
+            {
+                s.Uri = options.Uri;
+                s.Key = options.Key;
+            });
 
             services.AddHttpClient<IGroundnessDetector, GroundnessDetector>()
               .ConfigureHttpClient((serviceProvider, client) =>
               {
-                  client.BaseAddress = new Uri(configuration["ContentSafety:URI"]);
-                  client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", configuration["ContentSafety:Key"]);
+                  client.BaseAddress = new Uri(options.Uri);
+                  client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", options.Key);
               });
             return services;
         }
