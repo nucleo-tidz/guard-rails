@@ -1,11 +1,14 @@
-﻿using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using infrastructure.Options;
-using infrastructure.Agents.Services;
-using application.Services.Interfaces;
+﻿using application.Services.Interfaces;
+
 using infrastructure.Agents;
 using infrastructure.Agents.Adaptors;
+using infrastructure.Agents.Guardrails;
+using infrastructure.Agents.Services;
+using infrastructure.Options;
+
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace infrastructure
 {
@@ -38,6 +41,17 @@ namespace infrastructure
             services.AddChatClient(client.GetChatClient(options.ChatModelName).AsIChatClient());
             services.AddEmbeddingGenerator<string, Embedding<float>>(client.GetEmbeddingClient(options.EmbeddingModelName).AsIEmbeddingGenerator());
             return services;
-        }      
+        }
+        public static IServiceCollection AddGuardRail(this IServiceCollection services, IConfiguration configuration)        {
+            
+
+            services.AddHttpClient<IGroundnessDetector, GroundnessDetector>()
+              .ConfigureHttpClient((serviceProvider, client) =>
+              {
+                  client.BaseAddress = new Uri(configuration["ContentSafety:URI"]);
+                  client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", configuration["ContentSafety:Key"]);
+              });
+            return services;
+        }
     }
 }
