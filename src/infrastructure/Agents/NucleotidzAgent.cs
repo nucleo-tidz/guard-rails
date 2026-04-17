@@ -35,7 +35,8 @@
         {
             var agent = Create(conversationId, UserId);
             var session = await agent.CreateSessionAsync();
-            return (await agent.RunAsync(message, session)).Text;
+            var response= (await agent.RunAsync(message, session));
+            return response.Text;
         }
     }
 }
