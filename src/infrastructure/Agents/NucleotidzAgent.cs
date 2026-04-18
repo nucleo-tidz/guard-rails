@@ -22,6 +22,7 @@
                       Instructions = "You are a shiptech Agent providing user information on shiptech company, you can also guide use which container is best to book based on user's need",
                       ToolMode = ChatToolMode.Auto,
                   },
+                  
                   Description = "A shiptech company assistant",
                   AIContextProviders = [
                     new TextSearchProvider(textSearchAdapter.SearchAdapter, new()
@@ -30,13 +31,15 @@
                            RecentMessageMemoryLimit = 5,
                            StateKey = "document",
                        })],
-                  ChatHistoryProvider = new RedisChatHistoryProvider(session => new RedisChatHistoryProvider.State(conversationId, UserId), summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
+                  ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
               }).AsBuilder().Use(GuardrailMiddleware, null).Build();
 
         public async Task<string> Start(string conversationId, string UserId, string message)
         {
             var agent = Create(conversationId, UserId);
             var session = await agent.CreateSessionAsync();
+            session.StateBag.SetValue("conversationId", conversationId);
+            session.StateBag.SetValue("UserId", UserId);
             var response = await agent.RunAsync(message, session);
             return response.Text;
 

@@ -3,12 +3,16 @@
 using infrastructure.Agents;
 using infrastructure.Agents.Adaptors;
 using infrastructure.Agents.Guardrails;
+using infrastructure.Agents.HistoryProvider;
 using infrastructure.Agents.Services;
 using infrastructure.Options;
 
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using OpenAI.Chat;
 
 namespace infrastructure
 {
@@ -41,6 +45,23 @@ namespace infrastructure
                new System.ClientModel.ApiKeyCredential(options.ApiKey));
             services.AddChatClient(client.GetChatClient(options.ChatModelName).AsIChatClient());
             services.AddEmbeddingGenerator<string, Embedding<float>>(client.GetEmbeddingClient(options.EmbeddingModelName).AsIEmbeddingGenerator());
+            return services;
+        }
+
+        public static IServiceCollection AddAIAgent(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddKeyedSingleton<AIAgent>("nucleotidz",(sp) => new ChatClientAgent(
+            chatClient: sp.GetService<IChatClient>(),
+            options: new ChatClientAgentOptions
+            {
+                ChatOptions = new ChatOptions()
+                {
+                    Instructions = "You are a shiptech Agent providing user information on shiptech company, you can also guide use which container is best to book based on user's need",
+                    ToolMode = ChatToolMode.Auto,
+                },
+                Description = "A shiptech company assistant",
+                ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(sp.GetService<IChatClient>(), 2, 3)),
+            }));
             return services;
         }
 
