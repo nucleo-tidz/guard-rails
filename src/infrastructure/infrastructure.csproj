@@ -19,8 +19,4 @@
     <ProjectReference Include="..\application\application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Agents\Dtos\" />
-  </ItemGroup>
-
 </Project>

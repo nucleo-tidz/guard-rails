@@ -4,6 +4,7 @@ using infrastructure.Agents;
 using infrastructure.Agents.Adaptors;
 using infrastructure.Agents.Guardrails;
 using infrastructure.Agents.HistoryProvider;
+using infrastructure.Agents.Midllewares;
 using infrastructure.Agents.Services;
 using infrastructure.Options;
 
@@ -22,10 +23,9 @@ namespace infrastructure
         =>
             services.AddScoped<IEmbedService, EmbedService>()
             .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
-            .AddScoped<INucleotidzAgent, NucleotidzAgent>();
-
-
-
+            .AddScoped<INucleotidzAgent, NucleotidzAgent>()
+            .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>()
+            .AddAIAgent(configuration);
         public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
         {
             var section = configuration.GetSection(AzureOpenAIOptions.SectionName);
@@ -48,23 +48,6 @@ namespace infrastructure
             return services;
         }
 
-        public static IServiceCollection AddAIAgent(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddKeyedSingleton<AIAgent>("nucleotidz",(sp) => new ChatClientAgent(
-            chatClient: sp.GetService<IChatClient>(),
-            options: new ChatClientAgentOptions
-            {
-                ChatOptions = new ChatOptions()
-                {
-                    Instructions = "You are a shiptech Agent providing user information on shiptech company, you can also guide use which container is best to book based on user's need",
-                    ToolMode = ChatToolMode.Auto,
-                },
-                Description = "A shiptech company assistant",
-                ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(sp.GetService<IChatClient>(), 2, 3)),
-            }));
-            return services;
-        }
-
         public static IServiceCollection AddGuardRail(this IServiceCollection services, IConfiguration configuration)
         {
             var section = configuration.GetSection(ContentSafetyOptions.SectionName);
@@ -84,6 +67,39 @@ namespace infrastructure
                   client.BaseAddress = new Uri(options.Uri);
                   client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", options.Key);
               });
+            return services;
+        }
+
+        public static IServiceCollection AddAIAgent(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddKeyedScoped<AIAgent>("nucleotidz", (sp, key) =>
+            {
+                return new ChatClientAgent
+                (
+                    chatClient: sp.GetRequiredService<IChatClient>(),
+                    options: new ChatClientAgentOptions
+                    {
+                        ChatOptions = new ChatOptions
+                        {
+                            Instructions = "You are a Nucleotidz Agent providing user information on nucleotidz company, you can also guide use which product is best to book based on user's need",
+                            ToolMode = ChatToolMode.Auto,
+                        },
+                        Description = "A Nucleotidz company assistant",
+                        ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(sp.GetRequiredService<IChatClient>(), 2, 3)),
+                        AIContextProviders = [
+                              new TextSearchProvider(sp.GetRequiredService<ITextSearchAdapter>().SearchAdapter, new()
+                                                 {
+                                                     SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke,
+                                                     RecentMessageMemoryLimit = 5,
+                                                     StateKey = "document",
+                                                 })],
+                        
+                    }
+                ).AsBuilder().Use(sp.GetRequiredService<IGuardRailMiddleware>()
+                .GuardrailMiddleware,null)
+                .Build();
+               
+            });
             return services;
         }
     }
