@@ -23,7 +23,7 @@
             var response = await innerAgent.RunAsync(messages, session, options, cancellationToken);
             var data = textSearchAdapter._context;
             var grounded = await groundnessDetector.DetectGroundness(
-                 messages.LastOrDefault(m => m.Role == ChatRole.User).Text,
+                 messages.FirstOrDefault(m => m.Role == ChatRole.User).Text,
                  response.Text,
                  data.Select(_ => _.Text).ToList());
             if (grounded.UngroundedPercentage > 0.30)
@@ -36,7 +36,7 @@
 
         public async Task<AgentResponse> JailBreakDetection(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken)
         {
-            var userInput = messages.LastOrDefault(m => m.Role == ChatRole.User).Text;
+            var userInput = messages.FirstOrDefault(m => m.Role == ChatRole.User).Text;
             await textSearchAdapter.SearchAdapter(userInput, cancellationToken);
             var response = await jailBreakDetector.DetectJailBreak(userInput, textSearchAdapter._context.Select(_ => _.Text).ToList());
             if (response.DocumentsAnalysis.Any(_ => _.AttackDetected) || response.UserPromptAnalysis.AttackDetected)
@@ -47,7 +47,7 @@
         }
         public async Task<AgentResponse> PersonalCategoryDetection(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken)
         {
-            var userInput = messages.LastOrDefault(m => m.Role == ChatRole.User).Text;
+            var userInput = messages.FirstOrDefault(m => m.Role == ChatRole.User).Text;
 
             var response = await personalCaetgoryDetector.DetectPII(userInput, "presonaldata");
             if (response?.customCategoryAnalysis?.detected == true)
