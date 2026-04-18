@@ -28,7 +28,7 @@ namespace infrastructure
             .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
             .AddScoped<INucleotidzAgent, NucleotidzAgent>()
             .AddScoped<IShipmentPlugin, ShipmentPlugin>()
-            .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>()
+            .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>().AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
             .AddAIAgent(configuration);
         public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
         {
@@ -128,14 +128,14 @@ namespace infrastructure
                             ToolMode = ChatToolMode.Auto,
                             Tools = [
 
-                        AIFunctionFactory.Create(plugin.GetTotalContainers),
-                        AIFunctionFactory.Create(plugin.GetBookingStatus),
-                        AIFunctionFactory.Create(plugin.GetTotalCargoWeight),
-                        AIFunctionFactory.Create(plugin.GetOriginPort),
-                        AIFunctionFactory.Create(plugin.GetDestinationPort),
-                        AIFunctionFactory.Create(plugin.GetEstimatedArrival),
-                        AIFunctionFactory.Create(plugin.GetVesselDetails),
-                        AIFunctionFactory.Create(plugin.GetContainerNumbers),
+                                    AIFunctionFactory.Create(plugin.GetTotalContainers),
+                                    AIFunctionFactory.Create(plugin.GetBookingStatus),
+                                    AIFunctionFactory.Create(plugin.GetTotalCargoWeight),
+                                    AIFunctionFactory.Create(plugin.GetOriginPort),
+                                    AIFunctionFactory.Create(plugin.GetDestinationPort),
+                                    AIFunctionFactory.Create(plugin.GetEstimatedArrival),
+                                    AIFunctionFactory.Create(plugin.GetVesselDetails),
+                                    AIFunctionFactory.Create(plugin.GetContainerNumbers),
                                 ],
                         },
                         Description = "A Nucleotidz company assistant",
@@ -151,9 +151,9 @@ namespace infrastructure
                     }
                 )
                 .AsBuilder()
-                .Use(sp.GetRequiredService<IGuardRailMiddleware>().JailBreakDetection, null)
-                 .Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
-                .Use(sp.GetRequiredService<IGuardRailMiddleware>().GroudnessDetection, null)
+                //.Use(sp.GetRequiredService<IGuardRailMiddleware>().JailBreakDetection, null)
+                // .Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
+                //.Use(sp.GetRequiredService<IGuardRailMiddleware>().GroudnessDetection, null)
                 .Build();
 
             });

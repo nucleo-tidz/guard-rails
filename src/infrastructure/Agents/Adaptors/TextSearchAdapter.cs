@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Text;
 
-    using infrastructure.Agents.Model;
     using application.Dtos;
+    using application.Services.Interfaces;
+
+    using infrastructure.Agents.Model;
 
     using Microsoft.Agents.AI;
     using Microsoft.Extensions.AI;
@@ -17,15 +19,21 @@
     {
         private readonly RedisVectorStore vectorStore;
         public List<RagContext> _context { get; private set; } = new();
+        IQueryIntentClassifier _queryIntentClassifier;
 
-        public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)
+        public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, IQueryIntentClassifier queryIntentClassifier)
         {
             IConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             vectorStore = new RedisVectorStore(redis.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
+            _queryIntentClassifier = queryIntentClassifier;
         }
 
         public async Task<IEnumerable<TextSearchProvider.TextSearchResult>> SearchAdapter(string text, CancellationToken ct)
         {
+            if (_queryIntentClassifier.queryIntent != QueryIntent.CompanyPolicy && _queryIntentClassifier.queryIntent != QueryIntent.Mixed)
+            {
+                return new List<TextSearchProvider.TextSearchResult>();
+            }
             var documentCollection = vectorStore.GetCollection<Guid, VectorModel>("nucleotidz");
             List<TextSearchProvider.TextSearchResult> results = [];
 
@@ -46,17 +54,15 @@
 
             await foreach (var result in documentCollection.SearchAsync(text, 5, cancellationToken: ct))
             {
-                if (result.Score > 0.5)
+                _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink, SourceName = result.Record.SourceName });
+                results.Add(new TextSearchProvider.TextSearchResult
                 {
-                    _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink, SourceName = result.Record.SourceName });
-                    results.Add(new TextSearchProvider.TextSearchResult
-                    {
-                        SourceName = result.Record.SourceName,
-                        SourceLink = result.Record.SourceLink,
-                        Text = result.Record.Text ?? string.Empty,
-                        RawRepresentation = result
-                    });
-                }
+                    SourceName = result.Record.SourceName,
+                    SourceLink = result.Record.SourceLink,
+                    Text = result.Record.Text ?? string.Empty,
+                    RawRepresentation = result
+                });
+
             }
 
             return results;

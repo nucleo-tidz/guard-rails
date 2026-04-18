@@ -22,6 +22,7 @@
     {
         public async Task<string> Start(string conversationId, string UserId, string message)
         {
+            
             var memoryProvider = new MemoryProviderBuilder(embeddingGenerator)
                 .WithCollectionName("memory")
                 .WithVectorDimensions(3072)
@@ -29,7 +30,7 @@
                 .Build();
 
             var builtAgent = agent.AsBuilder()
-                .UseAIContextProviders(memoryProvider)
+                 //.UseAIContextProviders(memoryProvider)
                  .Build();
 
             var session = await builtAgent.CreateSessionAsync();

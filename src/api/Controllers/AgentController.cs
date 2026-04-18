@@ -7,13 +7,14 @@
 
     [Route("api/[controller]")]
     [ApiController]
-    public class AgentController(IDocumentSeedingService documentSeedingService, INucleotidzAgent nucleotidzAgent) : ControllerBase
+    public class AgentController(IDocumentSeedingService documentSeedingService, INucleotidzAgent nucleotidzAgent, IQueryIntentClassifier queryIntentClassifier) : ControllerBase
     {
         [HttpGet("chat/{message}/{username}/thread/{threadId}")]
         [HttpGet("chat/{message}/{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Chat(string message, string username, string? threadId)
         {
+            await queryIntentClassifier.ClassifyAsync(message);
             var response = await nucleotidzAgent.Start(threadId, username, message);
             return Ok(response);
         }
