@@ -95,8 +95,6 @@ namespace infrastructure
             services.AddKeyedScoped<AIAgent>("nucleotidz", static (sp, key) =>
             {
                 var plugin = sp.GetRequiredService<IShipmentPlugin>();
-                var sharedContext = sp.GetRequiredService<ISharedContext>();
-                var embeddingGenerator = sp.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
                 return new ChatClientAgent
                 (
                     chatClient: sp.GetRequiredService<IChatClient>(),
@@ -142,7 +140,7 @@ namespace infrastructure
                                     AIFunctionFactory.Create(plugin.GetContainerNumbers),
                                    ],
                         },
-                        Description = "A Nucleotidz company assistant",
+                        Description = "A shiptech company assistant",
                         ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(sp.GetRequiredService<IChatClient>(), 2, 3)),
                         AIContextProviders = [new TextSearchProvider(sp.GetRequiredService<ITextSearchAdapter>().Search, new() {SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke, RecentMessageMemoryLimit = 5})
                         ],
