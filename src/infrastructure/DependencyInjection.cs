@@ -67,6 +67,19 @@ namespace infrastructure
                   client.BaseAddress = new Uri(options.Uri);
                   client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", options.Key);
               });
+
+            services.AddHttpClient<IJailBreakDetector, JailBreakDetector>()
+             .ConfigureHttpClient((serviceProvider, client) =>
+             {
+                 client.BaseAddress = new Uri(options.Uri);
+                 client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", options.Key);
+             });
+            services.AddHttpClient<IPersonalCaetgoryDetector, PersonalCaetgoryDetector>()
+            .ConfigureHttpClient((serviceProvider, client) =>
+            {
+                client.BaseAddress = new Uri(options.Uri);
+                client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", options.Key);
+            });
             return services;
         }
 
@@ -95,8 +108,10 @@ namespace infrastructure
                                                  })],
                         
                     }
-                ).AsBuilder().Use(sp.GetRequiredService<IGuardRailMiddleware>()
-                .GuardrailMiddleware,null)
+                ).AsBuilder()
+                .Use(sp.GetRequiredService<IGuardRailMiddleware>().JailBreakDetection, null)
+                 .Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
+                .Use(sp.GetRequiredService<IGuardRailMiddleware>().GroudnessDetection, null)
                 .Build();
                
             });

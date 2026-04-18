@@ -28,11 +28,25 @@
         {
             var documentCollection = vectorStore.GetCollection<Guid, VectorModel>("nucleotidz");
             List<TextSearchProvider.TextSearchResult> results = [];
-            _context.Clear();
+
+            if (_context.Any())
+            {
+                foreach (var context in _context)
+                {
+                    results.Add(new TextSearchProvider.TextSearchResult
+                    {
+                        SourceName = context.SourceName,
+                        SourceLink = context.SourceLink,
+                        Text = context.Text,
+                        RawRepresentation = context.RawRepresentation
+                    });
+                }
+                return results;
+            }
 
             await foreach (var result in documentCollection.SearchAsync(text, 5, cancellationToken: ct))
             {
-                _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty });
+                _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink ,SourceName= result.Record.SourceName });
                 results.Add(new TextSearchProvider.TextSearchResult
                 {
                     SourceName = result.Record.SourceName,

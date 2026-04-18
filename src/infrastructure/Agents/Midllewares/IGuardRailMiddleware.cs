@@ -9,6 +9,8 @@
 
     public interface IGuardRailMiddleware
     {
-        Task<AgentResponse> GuardrailMiddleware(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken);
+        Task<AgentResponse> GroudnessDetection(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken);
+        Task<AgentResponse> JailBreakDetection(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken);
+        Task<AgentResponse> PersonalCategoryDetection(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken);
     }
 }
