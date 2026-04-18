@@ -14,11 +14,11 @@
     using Pipelines.Sockets.Unofficial.Arenas;
 
     internal class NucleotidzAgent(IChatClient chatClient,
-        [FromKeyedServices("nucleotidz")] AIAgent agent,ISharedContext sharedContext, 
-        IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator
-       ) : INucleotidzAgent
+        [FromKeyedServices("nucleotidz")] AIAgent agent,
+        ISharedContext sharedContext,
+        IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator) : INucleotidzAgent
     {
-        public async Task<string> Start( string message)
+        public async Task<string> Start(string message)
         {
             var memoryProvider = new MemoryProviderBuilder(embeddingGenerator)
            .WithCollectionName("memory")
@@ -26,9 +26,9 @@
            .WithStorageScope(sharedContext.User, sharedContext.ThreadId)
            .Build();
 
-            // var newagent= agent.AsBuilder().UseAIContextProviders(memoryProvider);
-
             var session = await agent.CreateSessionAsync();
+            session.StateBag.SetValue("conversationId", sharedContext.ThreadId);
+            session.StateBag.SetValue("UserId", sharedContext.User);
             var response = await agent.RunAsync(message, session);
             return response.Text;
         }

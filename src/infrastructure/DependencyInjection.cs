@@ -140,17 +140,11 @@ namespace infrastructure
                                     AIFunctionFactory.Create(plugin.GetEstimatedArrival),
                                     AIFunctionFactory.Create(plugin.GetVesselDetails),
                                     AIFunctionFactory.Create(plugin.GetContainerNumbers),
-                                ],
+                                   ],
                         },
                         Description = "A Nucleotidz company assistant",
-                        ChatHistoryProvider = new RedisChatHistoryProvider(sharedContext, summarizingChatReducer: new SummarizingChatReducer(sp.GetRequiredService<IChatClient>(), 2, 3)),
-                        AIContextProviders = [
-                              new TextSearchProvider(sp.GetRequiredService<ITextSearchAdapter>().Search, new()
-                                                 {
-                                                     SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke,
-                                                     RecentMessageMemoryLimit = 5,
-                                                     StateKey = "document",
-                                                 })
+                        ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(sp.GetRequiredService<IChatClient>(), 2, 3)),
+                        AIContextProviders = [new TextSearchProvider(sp.GetRequiredService<ITextSearchAdapter>().Search, new() {SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke, RecentMessageMemoryLimit = 5})
                         ],
 
                     }
