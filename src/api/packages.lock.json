@@ -182,6 +182,7 @@
       "application": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Agents.AI": "[1.1.0, )",
           "model": "[1.0.0, )"
         }
       },

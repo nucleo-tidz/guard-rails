@@ -1,10 +1,14 @@
-using infrastructure;
 using application;
+
+using infrastructure;
+
+using model;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ISharedContext, SharedContext>();
 builder.Services.AddInfrastructure(builder.Configuration)
     .AddAI(builder.Configuration).AddGuardRail(builder.Configuration);
 builder.Services.AddApplication();

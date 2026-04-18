@@ -1,25 +1,28 @@
-﻿using System;
-
-using application.Services.Interfaces;
-
-using infrastructure.Agents;
-using infrastructure.Agents.Adaptors;
-using infrastructure.Agents.Guardrails;
-using infrastructure.Agents.HistoryProvider;
-using infrastructure.Agents.Midllewares;
-using infrastructure.Agents.Plugin;
-using infrastructure.Agents.Services;
-using infrastructure.Options;
-
-using Microsoft.Agents.AI;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-using OpenAI.Chat;
-
+﻿
 namespace infrastructure
 {
+    using System;
+
+    using application.Services.Interfaces;
+
+    using infrastructure.Agents;
+    using infrastructure.Agents.Adaptors;
+    using infrastructure.Agents.Guardrails;
+    using infrastructure.Agents.HistoryProvider;
+    using infrastructure.Agents.Midllewares;
+    using infrastructure.Agents.Plugin;
+    using infrastructure.Agents.Services;
+    using infrastructure.Options;
+
+    using Microsoft.Agents.AI;
+    using Microsoft.Extensions.AI;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using model;
+
+    using OpenAI.Chat;
+
     public static class DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -89,10 +92,11 @@ namespace infrastructure
 
         public static IServiceCollection AddAIAgent(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddKeyedScoped<AIAgent>("nucleotidz", (sp, key) =>
+            services.AddKeyedScoped<AIAgent>("nucleotidz", static (sp, key) =>
             {
                 var plugin = sp.GetRequiredService<IShipmentPlugin>();
-
+                var sharedContext = sp.GetRequiredService<ISharedContext>();
+                var embeddingGenerator = sp.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
                 return new ChatClientAgent
                 (
                     chatClient: sp.GetRequiredService<IChatClient>(),
@@ -123,7 +127,7 @@ namespace infrastructure
                      
                      ## Response style
                      - Be concise and professional.
-                     - Present structured data (e.g. container lists) in a readable format.               
+                     - Present structured data (e.g. container lists) in a readable format.
                      """,
                             ToolMode = ChatToolMode.Auto,
                             Tools = [
@@ -139,19 +143,20 @@ namespace infrastructure
                                 ],
                         },
                         Description = "A Nucleotidz company assistant",
-                        ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(sp.GetRequiredService<IChatClient>(), 2, 3)),
+                        ChatHistoryProvider = new RedisChatHistoryProvider(sharedContext, summarizingChatReducer: new SummarizingChatReducer(sp.GetRequiredService<IChatClient>(), 2, 3)),
                         AIContextProviders = [
-                              new TextSearchProvider(sp.GetRequiredService<ITextSearchAdapter>().SearchAdapter, new()
+                              new TextSearchProvider(sp.GetRequiredService<ITextSearchAdapter>().Search, new()
                                                  {
                                                      SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke,
                                                      RecentMessageMemoryLimit = 5,
                                                      StateKey = "document",
-                                                 })],
+                                                 })
+                        ],
 
                     }
                 )
                 .AsBuilder()
-                //.Use(sp.GetRequiredService<IGuardRailMiddleware>().JailBreakDetection, null)
+                .Use(sp.GetRequiredService<IGuardRailMiddleware>().JailBreakDetection, null)
                 // .Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
                 //.Use(sp.GetRequiredService<IGuardRailMiddleware>().GroudnessDetection, null)
                 .Build();

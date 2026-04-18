@@ -7,10 +7,13 @@
 
     using Microsoft.Extensions.AI;
 
+    using model;
+    using model.Enums;
+
     internal class QueryIntentClassifier(IChatClient chatClient) : IQueryIntentClassifier
     {
-        public QueryIntent queryIntent { get; private set; }       
-        public async Task ClassifyAsync(string userMessage, CancellationToken ct = default)
+      
+        public async Task<QueryIntent> ClassifyAsync(string userMessage, CancellationToken ct = default)
         {
             var classificationPrompt = $"""
                 Classify the user's message into strictly ONE of these categories:
@@ -30,13 +33,13 @@
                           new Microsoft.Extensions.AI.ChatMessage(ChatRole.User, userMessage)
                      ], cancellationToken: ct);
 
-                queryIntent = response.Result;
+                return response.Result;
 
             }
             catch
             {
                 // Fallback to safe default on LLM error
-                queryIntent = QueryIntent.General;
+               return QueryIntent.General;
             }
         }
     }

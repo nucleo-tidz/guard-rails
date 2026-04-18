@@ -1,6 +1,8 @@
-namespace application.Dtos
+﻿namespace model
 {
+    using System;
     using System.Collections.Generic;
+    using System.Text;
 
     public class RagContext
     {
@@ -9,6 +11,4 @@ namespace application.Dtos
         public string SourceLink { get; set; } = string.Empty;
         public object? RawRepresentation;
     }
-
-  
 }

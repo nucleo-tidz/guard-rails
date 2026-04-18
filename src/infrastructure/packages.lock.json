@@ -353,6 +353,7 @@
       "application": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Agents.AI": "[1.1.0, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.6, )",
           "model": "[1.0.0, )"
         }

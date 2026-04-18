@@ -7,7 +7,9 @@ namespace application
     public static class DependencyInjection
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
-        => services.AddScoped<IDocumentSeedingService, DocumentSeedingService>();
+        => services.AddScoped<IDocumentSeedingService, DocumentSeedingService>()
+            .AddScoped<ISharedContextService, SharedContextService>()
+            .AddScoped<INucleotidzAgentService,NucleotidzAgentService>();
 
 
     }

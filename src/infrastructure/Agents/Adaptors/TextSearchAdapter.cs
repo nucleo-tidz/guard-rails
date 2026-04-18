@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
 
-    using application.Dtos;
     using application.Services.Interfaces;
 
     using infrastructure.Agents.Model;
@@ -13,33 +11,37 @@
     using Microsoft.Extensions.AI;
     using Microsoft.SemanticKernel.Connectors.Redis;
 
+    using model;
+    using model.Enums;
+
     using StackExchange.Redis;
 
     internal class TextSearchAdapter : ITextSearchAdapter
     {
         private readonly RedisVectorStore vectorStore;
-        public List<RagContext> _context { get; private set; } = new();
+        private readonly ISharedContext _sharedContext;
         IQueryIntentClassifier _queryIntentClassifier;
 
-        public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, IQueryIntentClassifier queryIntentClassifier)
+        public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, ISharedContext sharedContext)
         {
             IConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             vectorStore = new RedisVectorStore(redis.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
-            _queryIntentClassifier = queryIntentClassifier;
+            _sharedContext = sharedContext;
+  
         }
 
-        public async Task<IEnumerable<TextSearchProvider.TextSearchResult>> SearchAdapter(string text, CancellationToken ct)
+        public async Task<IEnumerable<TextSearchProvider.TextSearchResult>> Search(string text, CancellationToken ct)
         {
-            if (_queryIntentClassifier.queryIntent != QueryIntent.CompanyPolicy && _queryIntentClassifier.queryIntent != QueryIntent.Mixed)
+            if (_sharedContext.queryIntent != QueryIntent.CompanyPolicy && _sharedContext.queryIntent != QueryIntent.Mixed)
             {
                 return new List<TextSearchProvider.TextSearchResult>();
             }
             var documentCollection = vectorStore.GetCollection<Guid, VectorModel>("nucleotidz");
             List<TextSearchProvider.TextSearchResult> results = [];
 
-            if (_context.Any())
+            if (_sharedContext.ragContexts.Any())
             {
-                foreach (var context in _context)
+                foreach (var context in _sharedContext.ragContexts)
                 {
                     results.Add(new TextSearchProvider.TextSearchResult
                     {
@@ -54,7 +56,7 @@
 
             await foreach (var result in documentCollection.SearchAsync(text, 5, cancellationToken: ct))
             {
-                _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink, SourceName = result.Record.SourceName });
+                _sharedContext.ragContexts.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink, SourceName = result.Record.SourceName });
                 results.Add(new TextSearchProvider.TextSearchResult
                 {
                     SourceName = result.Record.SourceName,
@@ -62,9 +64,7 @@
                     Text = result.Record.Text ?? string.Empty,
                     RawRepresentation = result
                 });
-
             }
-
             return results;
         }
     }
