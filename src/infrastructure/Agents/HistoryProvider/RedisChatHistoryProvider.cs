@@ -33,14 +33,14 @@
             string messages = _db.StringGet(GetKey(context.Session));
             if (messages == null)
                 return new(new List<ChatMessage>());
-            return new((System.Text.Json.JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(messages)).OrderBy(x => x.CreatedAt));
+            return new((System.Text.Json.JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(messages)));
         }
 
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)
         {
            
             string messages = _db.StringGet(GetKey(context.Session));
-            List<ChatMessage> storedMessage = messages is null ? new List<ChatMessage>() : (System.Text.Json.JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(messages)).OrderBy(x => x.CreatedAt).ToList();
+            List<ChatMessage> storedMessage = messages is null ? new List<ChatMessage>() : (System.Text.Json.JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(messages)).ToList();
 
             IEnumerable<ChatMessage> reducedmessage = new List<ChatMessage>();
             var allNewMessages = context.RequestMessages

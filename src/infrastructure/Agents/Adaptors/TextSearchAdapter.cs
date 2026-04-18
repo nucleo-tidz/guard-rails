@@ -46,14 +46,17 @@
 
             await foreach (var result in documentCollection.SearchAsync(text, 5, cancellationToken: ct))
             {
-                _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink ,SourceName= result.Record.SourceName });
-                results.Add(new TextSearchProvider.TextSearchResult
+                if (result.Score > 0.5)
                 {
-                    SourceName = result.Record.SourceName,
-                    SourceLink = result.Record.SourceLink,
-                    Text = result.Record.Text ?? string.Empty,
-                    RawRepresentation = result
-                });
+                    _context.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink, SourceName = result.Record.SourceName });
+                    results.Add(new TextSearchProvider.TextSearchResult
+                    {
+                        SourceName = result.Record.SourceName,
+                        SourceLink = result.Record.SourceLink,
+                        Text = result.Record.Text ?? string.Empty,
+                        RawRepresentation = result
+                    });
+                }
             }
 
             return results;
