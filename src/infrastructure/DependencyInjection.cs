@@ -31,7 +31,8 @@ namespace infrastructure
             .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
             .AddScoped<INucleotidzAgent, NucleotidzAgent>()
             .AddScoped<IShipmentPlugin, ShipmentPlugin>()
-            .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>().AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
+            .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>().AddScoped<IClassifierMiddleware,ClassifierMiddleware>()
+            .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
             .AddAIAgent(configuration);
         public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
         {
@@ -100,7 +101,7 @@ namespace infrastructure
                     chatClient: sp.GetRequiredService<IChatClient>(),
                     options: new ChatClientAgentOptions
                     {
-                        ChatOptions = new ChatOptions
+                       ChatOptions = new ChatOptions
                         {
                             Instructions = """
                      You are a professional shipment assistant for shiptech company with expertise in freight and container logistics.
@@ -148,9 +149,10 @@ namespace infrastructure
                     }
                 )
                 .AsBuilder()
+                 .Use(sp.GetRequiredService<IClassifierMiddleware>().Classify, null)
                 .Use(sp.GetRequiredService<IGuardRailMiddleware>().JailBreakDetection, null)
-                // .Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
-                //.Use(sp.GetRequiredService<IGuardRailMiddleware>().GroudnessDetection, null)
+                //.Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
+                .Use(sp.GetRequiredService<IGuardRailMiddleware>().GroudnessDetection, null)
                 .Build();
 
             });

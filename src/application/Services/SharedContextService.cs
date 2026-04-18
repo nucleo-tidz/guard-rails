@@ -15,12 +15,6 @@
         {
             sharedContext.User = user;
             sharedContext.ThreadId = threadId;
-            sharedContext.queryIntent = await queryIntentClassifier.ClassifyAsync(query, CancellationToken.None);
-            sharedContext.ragContexts.Clear();
-            if (sharedContext.queryIntent == model.Enums.QueryIntent.CompanyPolicy || sharedContext.queryIntent == model.Enums.QueryIntent.Mixed)
-            {
-                await textSearchAdapter.Search(query, CancellationToken.None);
-            }
         }
     }
 }
