@@ -20,14 +20,11 @@
     {
         private readonly RedisVectorStore vectorStore;
         private readonly ISharedContext _sharedContext;
-        IQueryIntentClassifier _queryIntentClassifier;
 
-        public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, ISharedContext sharedContext)
+        public TextSearchAdapter(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, ISharedContext sharedContext, IConnectionMultiplexer redis)
         {
-            IConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             vectorStore = new RedisVectorStore(redis.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
             _sharedContext = sharedContext;
-  
         }
 
         public async Task<IEnumerable<TextSearchProvider.TextSearchResult>> Search(string text, CancellationToken ct)

@@ -15,6 +15,8 @@ namespace infrastructure
     using infrastructure.Agents.Services;
     using infrastructure.Options;
 
+    using StackExchange.Redis;
+
     using Microsoft.Agents.AI;
     using Microsoft.Extensions.AI;
     using Microsoft.Extensions.Configuration;
@@ -27,14 +29,23 @@ namespace infrastructure
     public static class DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        =>
-            services.AddScoped<IEmbedService, EmbedService>()
-            .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
-            .AddScoped<INucleotidzAgent, NucleotidzAgent>()
-            .AddScoped<IAgentFactory, AgentFactory>()
-            .AddScoped<IShipmentPlugin, ShipmentPlugin>()
-            .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>().AddScoped<IClassifierMiddleware,ClassifierMiddleware>()
-            .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>();
+        {
+            var redisConnectionString = configuration["Redis:ConnectionString"]
+                ?? throw new InvalidOperationException("Missing configuration: Redis:ConnectionString");
+
+            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
+
+            return services
+                .AddScoped<IEmbedService, EmbedService>()
+                .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
+                .AddScoped<INucleotidzAgent, NucleotidzAgent>()
+                .AddScoped<IAgentFactory, AgentFactory>()
+                .AddScoped<IShipmentPlugin, ShipmentPlugin>()
+                .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>()
+                .AddScoped<IClassifierMiddleware, ClassifierMiddleware>()
+                .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
+                .AddScoped<IChatHistoryReader, RedisChatHistoryReader>();
+        }
         public static IServiceCollection AddAzureOpenAI(this IServiceCollection services, IConfiguration configuration)
         {
             var section = configuration.GetSection(AzureOpenAIOptions.SectionName);

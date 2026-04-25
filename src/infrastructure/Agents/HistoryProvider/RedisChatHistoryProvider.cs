@@ -9,16 +9,14 @@
     public sealed class RedisChatHistoryProvider : ChatHistoryProvider
     {
 
-        private readonly ConnectionMultiplexer _redis;
         private readonly IDatabase _db;
-        SummarizingChatReducer _summarizingChatReducer;
+        private readonly SummarizingChatReducer? _summarizingChatReducer;
 
         public RedisChatHistoryProvider(
-            SummarizingChatReducer summarizingChatReducer = null)
+            IConnectionMultiplexer redis,
+            SummarizingChatReducer? summarizingChatReducer = null)
         {
-
-            _redis = ConnectionMultiplexer.Connect("localhost:6379");
-            _db = _redis.GetDatabase();
+            _db = redis.GetDatabase();
             _summarizingChatReducer = summarizingChatReducer;
         }
 

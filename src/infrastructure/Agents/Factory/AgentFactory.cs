@@ -3,14 +3,17 @@ using infrastructure.Agents.HistoryProvider;
 using infrastructure.Agents.Midllewares;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using StackExchange.Redis;
 
 namespace infrastructure.Agents.Factory
 {
-    internal class AgentFactory(IShipmentPlugin plugin, 
-        IChatClient chatClient, 
+    internal class AgentFactory(
+        IShipmentPlugin plugin,
+        IChatClient chatClient,
         IClassifierMiddleware classifierMiddleware,
         IGuardRailMiddleware guardRailMiddleware,
-        ITextSearchAdapter textSearchAdapter) : IAgentFactory
+        ITextSearchAdapter textSearchAdapter,
+        IConnectionMultiplexer redis) : IAgentFactory
     {
         public AIAgent Create()
         {
@@ -24,7 +27,7 @@ namespace infrastructure.Agents.Factory
                              Instructions = """
                      You are a professional shipment assistant for shiptech company with expertise in freight and container logistics.
                      You help users retrieve accurate, up-to-date information about their shipment bookings.
-                     
+
                      ## Capabilities
                      You can answer questions about a booking by looking up:
                      - Booking status (e.g. In Transit, Arrived, Pending)
@@ -34,33 +37,32 @@ namespace infrastructure.Agents.Factory
                      - Assigned vessel name and voyage number
                      - Estimated time of arrival (ETA)
                      - Provide information of shiptech company policy
-                     
+
                      ## Behaviour
                      - Always ask for a booking ID before calling any tool, unless the user has already provided one.
                      - Call only the tools required to answer the user's specific question — do not retrieve unnecessary data.
                      - If a tool returns no data or an error, inform the user clearly and suggest they verify their booking ID.
                      - Never guess or fabricate shipment data. Only present information returned by your tools.
                      - If the user asks something outside your capabilities (e.g. modifying a booking), politely explain that you can only retrieve information and direct them to the appropriate team.
-                     
+
                      ## Response style
                      - Be concise and professional.
                      - Present structured data (e.g. container lists) in a readable format.
                      """,
                              ToolMode = ChatToolMode.Auto,
                              Tools = [
-
                                      AIFunctionFactory.Create(plugin.GetTotalContainers),
-                                    AIFunctionFactory.Create(plugin.GetBookingStatus),
-                                    AIFunctionFactory.Create(plugin.GetTotalCargoWeight),
-                                    AIFunctionFactory.Create(plugin.GetOriginPort),
-                                    AIFunctionFactory.Create(plugin.GetDestinationPort),
-                                    AIFunctionFactory.Create(plugin.GetEstimatedArrival),
-                                    AIFunctionFactory.Create(plugin.GetVesselDetails),
-                                    AIFunctionFactory.Create(plugin.GetContainerNumbers),
-                                    ],
+                                     AIFunctionFactory.Create(plugin.GetBookingStatus),
+                                     AIFunctionFactory.Create(plugin.GetTotalCargoWeight),
+                                     AIFunctionFactory.Create(plugin.GetOriginPort),
+                                     AIFunctionFactory.Create(plugin.GetDestinationPort),
+                                     AIFunctionFactory.Create(plugin.GetEstimatedArrival),
+                                     AIFunctionFactory.Create(plugin.GetVesselDetails),
+                                     AIFunctionFactory.Create(plugin.GetContainerNumbers),
+                                     ],
                          },
                          Description = "A shiptech company assistant",
-                         ChatHistoryProvider = new RedisChatHistoryProvider(summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
+                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
                          AIContextProviders = [new TextSearchProvider(textSearchAdapter.Search, new() {SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke, RecentMessageMemoryLimit = 5})
                          ],
 
