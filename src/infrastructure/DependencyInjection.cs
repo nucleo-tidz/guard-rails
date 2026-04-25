@@ -25,6 +25,7 @@ namespace infrastructure
     using model;
 
     using OpenAI.Chat;
+    using infrastructure.Session;
 
     public static class DependencyInjection
     {
@@ -40,6 +41,7 @@ namespace infrastructure
                 .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
                 .AddScoped<INucleotidzAgent, NucleotidzAgent>()
                 .AddScoped<IAgentFactory, AgentFactory>()
+                .AddScoped<ISessionProvider, SessionProvider>()
                 .AddScoped<IShipmentPlugin, ShipmentPlugin>()
                 .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>()
                 .AddScoped<IClassifierMiddleware, ClassifierMiddleware>()

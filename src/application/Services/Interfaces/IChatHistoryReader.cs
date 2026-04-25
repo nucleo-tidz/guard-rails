@@ -4,6 +4,6 @@ namespace application.Services.Interfaces
 
     public interface IChatHistoryReader
     {
-        Task<IEnumerable<ChatMessage>> GetRecentMessagesAsync(string userId, string conversationId, int count, CancellationToken ct = default);
+        Task<IEnumerable<ChatMessage>> GetRecentMessagesAsync(int count, CancellationToken ct = default);
     }
 }

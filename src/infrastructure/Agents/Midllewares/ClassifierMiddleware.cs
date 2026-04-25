@@ -28,7 +28,7 @@ namespace infrastructure.Agents.Midllewares
 
             if (!string.IsNullOrEmpty(sharedContext.User) && !string.IsNullOrEmpty(sharedContext.ThreadId))
             {
-                recentHistory = await chatHistoryReader.GetRecentMessagesAsync(sharedContext.User, sharedContext.ThreadId, HistoryWindowSize, cancellationToken);
+                recentHistory = await chatHistoryReader.GetRecentMessagesAsync(HistoryWindowSize, cancellationToken);
             }
 
             sharedContext.queryIntent = await queryIntentClassifier.ClassifyAsync(userMessage, recentHistory, cancellationToken);

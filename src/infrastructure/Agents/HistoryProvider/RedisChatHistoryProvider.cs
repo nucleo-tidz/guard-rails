@@ -19,8 +19,8 @@
             SummarizingChatReducer? summarizingChatReducer = null)
         {
            
-            string statekey = $"conversation:{sharedContext.ThreadId}:user:{sharedContext.User}";
-            this._sessionState = new ProviderSessionState<string>(s => statekey, statekey);
+        
+            this._sessionState = new ProviderSessionState<string>(s => sharedContext.StateKey, sharedContext.StateKey);
             _db = redis.GetDatabase();
             _summarizingChatReducer = summarizingChatReducer;
         }

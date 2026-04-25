@@ -5,20 +5,16 @@ namespace infrastructure.Agents.HistoryProvider
     using application.Services.Interfaces;
 
     using Microsoft.Extensions.AI;
-
+    using model;
     using StackExchange.Redis;
 
-    internal class RedisChatHistoryReader(IConnectionMultiplexer redis) : IChatHistoryReader
+    internal class RedisChatHistoryReader(IConnectionMultiplexer redis, ISharedContext sharedContext) : IChatHistoryReader
     {
         private readonly IDatabase _db = redis.GetDatabase();
 
-        public async Task<IEnumerable<ChatMessage>> GetRecentMessagesAsync(
-            string userId,
-            string conversationId,
-            int count,
-            CancellationToken ct = default)
+        public async Task<IEnumerable<ChatMessage>> GetRecentMessagesAsync(int count, CancellationToken ct = default)
         {
-            var key = $"conversation:{conversationId}:user:{userId}";
+            var key = sharedContext.StateKey;
             string? raw = await _db.StringGetAsync(key);
 
             if (raw is null)
@@ -26,7 +22,7 @@ namespace infrastructure.Agents.HistoryProvider
 
             var all = JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(raw) ?? [];
             return all
-                    .Where(m => (m.Role == ChatRole.User || m.Role == ChatRole.Assistant) && m.AdditionalProperties is null)
+                    .Where(m => (m.Role == ChatRole.User || m.Role == ChatRole.Assistant) && m.AdditionalProperties is null &&!string.IsNullOrEmpty( m.Text))
                 .TakeLast(count);
         }
     }

@@ -10,5 +10,8 @@
         QueryIntent queryIntent { get; set; }
         string User { get; set; }
         string ThreadId { get; set; }
+        public string SessionKey => $"session:{User}:{ThreadId}";
+        public string StateKey => $"state:{User}:{ThreadId}";
+
     }
 }

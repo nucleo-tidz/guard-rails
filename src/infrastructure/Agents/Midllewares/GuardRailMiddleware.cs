@@ -20,12 +20,16 @@
         {
 
             var response = await innerAgent.RunAsync(messages, session, options, cancellationToken);
+            if(!_sharedContext.ragContexts.Any())
+            {
+                return response;
+            }
             var data = _sharedContext.ragContexts;
             var grounded = await groundnessDetector.DetectGroundness(
                  messages.FirstOrDefault(m => m.Role == ChatRole.User).Text,
                  response.Text,
                  data.Select(_ => _.Text).ToList());
-            if (grounded.UngroundedPercentage > 0.30)
+            if (grounded.UngroundedPercentage > 0.70)
             {
                 var warningMessage = $"{response.Text}\n\n⚠️ **Disclaimer**: This response may contain information not based on verified facts . Please verify critical information from official sources.";
                 response = new Microsoft.Agents.AI.AgentResponse(new ChatMessage(ChatRole.Assistant, warningMessage));
