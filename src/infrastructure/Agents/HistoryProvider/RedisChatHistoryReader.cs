@@ -22,7 +22,7 @@ namespace infrastructure.Agents.HistoryProvider
 
             var all = JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(raw) ?? [];
             return all
-                    .Where(m => (m.Role == ChatRole.User || m.Role == ChatRole.Assistant) && m.AdditionalProperties is null &&!string.IsNullOrEmpty( m.Text))
+                    .Where(m => (m.Role == ChatRole.User || m.Role == ChatRole.Assistant) && !m.Text.StartsWith("##")  &&!string.IsNullOrEmpty( m.Text))
                 .TakeLast(count);
         }
     }
