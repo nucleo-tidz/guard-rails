@@ -38,22 +38,6 @@
             }
             var documentCollection = vectorStore.GetCollection<Guid, VectorModel>("nucleotidz");
             List<TextSearchProvider.TextSearchResult> results = [];
-
-            if (_sharedContext.ragContexts.Any())
-            {
-                foreach (var context in _sharedContext.ragContexts)
-                {
-                    results.Add(new TextSearchProvider.TextSearchResult
-                    {
-                        SourceName = context.SourceName,
-                        SourceLink = context.SourceLink,
-                        Text = context.Text,
-                        RawRepresentation = context.RawRepresentation
-                    });
-                }
-                return results;
-            }
-
             await foreach (var result in documentCollection.SearchAsync(text, 5, cancellationToken: ct))
             {
                 _sharedContext.ragContexts.Add(new RagContext { Text = result.Record.Text ?? string.Empty, RawRepresentation = result, SourceLink = result.Record.SourceLink, SourceName = result.Record.SourceName });

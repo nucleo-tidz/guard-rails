@@ -12,15 +12,14 @@
 
     internal class QueryIntentClassifier(IChatClient chatClient) : IQueryIntentClassifier
     {
-      
+
         public async Task<QueryIntent> ClassifyAsync(string userMessage, CancellationToken ct = default)
         {
             var classificationPrompt = $"""
                 Classify the user's message into strictly ONE of these categories:
                 - BookingQuery: Questions about specific shipments, bookings, tracking, container numbers, status
                 - CompanyPolicy: Questions about company policies, procedures, terms, rates, insurance
-                - Mixed: Questions involving both booking details and company information  
-                
+                - Mixed: Questions involving both booking details and company information                
                 Respond with ONLY one category name: BookingQuery, CompanyPolicy, or Mixed
                 """;
 
@@ -38,7 +37,6 @@
             }
             catch
             {
-                // Fallback to safe default on LLM error
                return QueryIntent.General;
             }
         }

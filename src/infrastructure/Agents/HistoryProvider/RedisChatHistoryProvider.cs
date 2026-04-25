@@ -1,14 +1,9 @@
 ﻿namespace infrastructure.Agents.HistoryProvider
 {
-    using System;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-
     using Microsoft.Agents.AI;
     using Microsoft.Extensions.AI;
-
     using StackExchange.Redis;
-
+    using System;
     using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
     public sealed class RedisChatHistoryProvider : ChatHistoryProvider

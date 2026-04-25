@@ -10,7 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ISharedContext, SharedContext>();
 builder.Services.AddInfrastructure(builder.Configuration)
-    .AddAI(builder.Configuration).AddGuardRail(builder.Configuration);
+    .AddAzureOpenAI(builder.Configuration).AddGuardRail(builder.Configuration);
 builder.Services.AddApplication();
 var app = builder.Build();
 app.UseSwagger();
