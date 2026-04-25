@@ -18,8 +18,6 @@
             ISharedContext sharedContext,
             SummarizingChatReducer? summarizingChatReducer = null)
         {
-           
-        
             this._sessionState = new ProviderSessionState<string>(s => sharedContext.StateKey, sharedContext.StateKey);
             _db = redis.GetDatabase();
             _summarizingChatReducer = summarizingChatReducer;
