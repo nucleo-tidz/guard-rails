@@ -3,6 +3,7 @@ using infrastructure.Agents.HistoryProvider;
 using infrastructure.Agents.Midllewares;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using model;
 using StackExchange.Redis;
 
 namespace infrastructure.Agents.Factory
@@ -13,7 +14,7 @@ namespace infrastructure.Agents.Factory
         IClassifierMiddleware classifierMiddleware,
         IGuardRailMiddleware guardRailMiddleware,
         ITextSearchAdapter textSearchAdapter,
-        IConnectionMultiplexer redis) : IAgentFactory
+        IConnectionMultiplexer redis,ISharedContext sharedContext) : IAgentFactory
     {
         public AIAgent Create()
         {
@@ -62,7 +63,7 @@ namespace infrastructure.Agents.Factory
                                      ],
                          },
                          Description = "A shiptech company assistant",
-                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
+                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, sharedContext, summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
                          AIContextProviders = [new TextSearchProvider(textSearchAdapter.Search, new() {SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke, RecentMessageMemoryLimit = 5})
                          ],
 
