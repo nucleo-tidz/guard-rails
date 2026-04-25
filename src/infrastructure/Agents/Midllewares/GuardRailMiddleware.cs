@@ -1,6 +1,7 @@
 ﻿namespace infrastructure.Agents.Midllewares
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using infrastructure.Agents.Guardrails;
 
@@ -8,6 +9,8 @@
     using Microsoft.Extensions.AI;
 
     using model;
+
+    using static Microsoft.Agents.AI.TextSearchProvider;
 
     internal class GuardRailMiddleware(   
         IGroundnessDetector groundnessDetector,
@@ -24,9 +27,10 @@
             {
                 return response;
             }
+            var searchState=  session.StateBag.GetValue<TextSearchProviderState>("TextSearchProvider");
+            
             var data = _sharedContext.ragContexts;
-            var grounded = await groundnessDetector.DetectGroundness(
-                 messages.FirstOrDefault(m => m.Role == ChatRole.User).Text,
+            var grounded = await groundnessDetector.DetectGroundness(string.Join("\n", searchState.RecentMessagesText),
                  response.Text,
                  data.Select(_ => _.Text).ToList());
             if (grounded.UngroundedPercentage > 0.70)
