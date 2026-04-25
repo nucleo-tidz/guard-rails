@@ -30,7 +30,7 @@
             var searchState=  session.StateBag.GetValue<TextSearchProviderState>("TextSearchProvider");
             
             var data = _sharedContext.ragContexts;
-            var grounded = await groundnessDetector.DetectGroundness(string.Join("\n", searchState.RecentMessagesText),
+            var grounded = await groundnessDetector.DetectGroundness(string.Join("\n", searchState.RecentMessagesText.TakeLast(2)),
                  response.Text,
                  data.Select(_ => _.Text).ToList());
             if (grounded.UngroundedPercentage > 0.70)
