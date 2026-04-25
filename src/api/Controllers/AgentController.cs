@@ -1,8 +1,6 @@
 ﻿namespace api.Controllers
 {
-    using api.RequestModels;
-
-    using application.Services;
+    using api.Filter;
     using application.Services.Interfaces;
 
     using Microsoft.AspNetCore.Http;
@@ -10,15 +8,16 @@
 
     [Route("api/[controller]")]
     [ApiController]
-    public class AgentController(INucleotidzAgentService nucleotidzAgent) : ControllerBase
+    [ServiceFilter(typeof(ContextInitializationFilter))]
+    public class AgentController(INucleotidzAgentService nucleotidzAgent, ISharedContextService sharedContextService) : ControllerBase
     {
         [HttpGet("chat/{message}/{username}/thread/{threadId}")]
         [HttpGet("chat/{message}/{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Chat(string message, string username, string? threadId)
         {
-
-            var response = await nucleotidzAgent.Start(threadId, username, message);
+          
+            var response = await nucleotidzAgent.Start( message);
             return Ok(response);
         }
     }

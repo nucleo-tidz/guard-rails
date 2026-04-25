@@ -9,9 +9,9 @@
 
     using model;
 
-    internal class SharedContextService(ISharedContext sharedContext, IQueryIntentClassifier queryIntentClassifier, ITextSearchAdapter textSearchAdapter) : ISharedContextService
+    internal class SharedContextService(ISharedContext sharedContext) : ISharedContextService
     {
-        public async Task Build(string user, string threadId, string query)
+        public async Task Build(string user, string threadId)
         {
             sharedContext.User = user;
             sharedContext.ThreadId = threadId;

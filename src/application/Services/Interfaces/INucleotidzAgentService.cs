@@ -6,6 +6,6 @@
 
     public interface INucleotidzAgentService
     {
-        Task<string> Start(string conversationId, string UserId, string message);
+        Task<string> Start( string message);
     }
 }

@@ -6,6 +6,6 @@
 
     public interface ISharedContextService
     {
-       Task Build(string user, string threadId, string query);
+       Task Build(string user, string threadId);
     }
 }

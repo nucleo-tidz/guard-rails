@@ -1,3 +1,4 @@
+using api.Filter;
 using application;
 
 using infrastructure;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ContextInitializationFilter>();
 builder.Services.AddScoped<ISharedContext, SharedContext>();
 builder.Services.AddInfrastructure(builder.Configuration)
     .AddAzureOpenAI(builder.Configuration).AddGuardRail(builder.Configuration);
