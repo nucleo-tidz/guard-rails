@@ -14,7 +14,7 @@
         public async Task<AgentResponse> Classify(IEnumerable<ChatMessage> messages, AgentSession? session, AgentRunOptions? options, AIAgent innerAgent, CancellationToken cancellationToken)
         {
             QueryIntent queryIntent = await queryIntentClassifier.ClassifyAsync(messages.FirstOrDefault(m => m.Role == ChatRole.User).Text);
-            sharedContext.queryIntent = queryIntent;       
+            sharedContext.queryIntent = queryIntent;
             return await innerAgent.RunAsync(messages, session, options, cancellationToken);
         }
     }
