@@ -25,7 +25,9 @@ namespace infrastructure.Agents.HistoryProvider
                 return [];
 
             var all = JsonSerializer.Deserialize<IEnumerable<ChatMessage>>(raw) ?? [];
-            return all.TakeLast(count);
+            return all
+                    .Where(m => (m.Role == ChatRole.User || m.Role == ChatRole.Assistant) && m.AdditionalProperties is null)
+                .TakeLast(count);
         }
     }
 }
