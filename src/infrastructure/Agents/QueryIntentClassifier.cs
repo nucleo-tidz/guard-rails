@@ -7,10 +7,11 @@
     using application.Services.Interfaces;
 
     using Microsoft.Extensions.AI;
+    using Microsoft.Extensions.DependencyInjection;
 
     using model.Enums;
 
-    internal class QueryIntentClassifier(IChatClient chatClient) : IQueryIntentClassifier
+    internal class QueryIntentClassifier([FromKeyedServices("mini")] IChatClient chatClient) : IQueryIntentClassifier
     {
         public async Task<QueryIntent> ClassifyAsync(string userMessage, IEnumerable<ChatMessage>? recentHistory = null, CancellationToken ct = default)
         {

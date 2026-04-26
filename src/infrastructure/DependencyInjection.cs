@@ -63,9 +63,11 @@ namespace infrastructure
                 s.EmbeddingModelName = options.EmbeddingModelName;
             });
 
-            var client = new Azure.AI.OpenAI.AzureOpenAIClient(new Uri(options.Endpoint),
-               new System.ClientModel.ApiKeyCredential(options.ApiKey));
-            services.AddChatClient(client.GetChatClient(options.ChatModelName).AsIChatClient());
+            var client = new Azure.AI.OpenAI.AzureOpenAIClient(new Uri(options.Endpoint), new System.ClientModel.ApiKeyCredential(options.ApiKey));          
+
+            services.AddKeyedChatClient("gpt", client.GetChatClient(options.ChatModelName).AsIChatClient());
+            services.AddKeyedChatClient("mini", client.GetChatClient(options.LightChatModelName).AsIChatClient());
+
             services.AddEmbeddingGenerator<string, Embedding<float>>(client.GetEmbeddingClient(options.EmbeddingModelName).AsIEmbeddingGenerator());
             return services;
         }
@@ -105,6 +107,5 @@ namespace infrastructure
             return services;
         }
 
-        
     }
 }

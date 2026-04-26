@@ -8,5 +8,6 @@ namespace infrastructure.Options
         public string ApiKey { get; set; } = string.Empty;
         public string ChatModelName { get; set; } = string.Empty;
         public string EmbeddingModelName { get; set; } = string.Empty;
+        public string LightChatModelName { get; set; } = string.Empty;
     }
 }

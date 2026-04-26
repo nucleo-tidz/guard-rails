@@ -3,6 +3,8 @@ using infrastructure.Agents.HistoryProvider;
 using infrastructure.Agents.Midllewares;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
+
 using model;
 using StackExchange.Redis;
 
@@ -10,7 +12,8 @@ namespace infrastructure.Agents.Factory
 {
     internal class AgentFactory(
         IShipmentPlugin plugin,
-        IChatClient chatClient,
+        [FromKeyedServices("gpt")]IChatClient chatClient,
+        [FromKeyedServices("mini")] IChatClient lightChatClient,
         IClassifierMiddleware classifierMiddleware,
         IGuardRailMiddleware guardRailMiddleware,
         ITextSearchAdapter textSearchAdapter,
@@ -63,7 +66,7 @@ namespace infrastructure.Agents.Factory
                                      ],
                          },
                          Description = "A shiptech company assistant",
-                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, sharedContext, summarizingChatReducer: new SummarizingChatReducer(chatClient, 2, 3)),
+                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, sharedContext, summarizingChatReducer: new SummarizingChatReducer(lightChatClient, 2, 3)),
                          AIContextProviders = [new TextSearchProvider(textSearchAdapter.Search, new() {SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke, RecentMessageMemoryLimit = 5})
                          ],
 
