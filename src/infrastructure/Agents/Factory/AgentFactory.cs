@@ -1,23 +1,26 @@
 ﻿using application.Services.Interfaces;
+
 using infrastructure.Agents.HistoryProvider;
 using infrastructure.Agents.Midllewares;
+
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 
 using model;
+
 using StackExchange.Redis;
 
 namespace infrastructure.Agents.Factory
 {
     internal class AgentFactory(
         IShipmentPlugin plugin,
-        [FromKeyedServices("gpt")]IChatClient chatClient,
+        [FromKeyedServices("gpt")] IChatClient chatClient,
         [FromKeyedServices("mini")] IChatClient lightChatClient,
         IClassifierMiddleware classifierMiddleware,
         IGuardRailMiddleware guardRailMiddleware,
         ITextSearchAdapter textSearchAdapter,
-        IConnectionMultiplexer redis,ISharedContext sharedContext) : IAgentFactory
+        IConnectionMultiplexer redis, ISharedContext sharedContext) : IAgentFactory
     {
         public AIAgent Create()
         {
@@ -66,7 +69,7 @@ namespace infrastructure.Agents.Factory
                                      ],
                          },
                          Description = "A shiptech company assistant",
-                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, sharedContext, summarizingChatReducer: new SummarizingChatReducer(lightChatClient, 2, 3)),
+                         ChatHistoryProvider = new RedisChatHistoryProvider(redis, sharedContext, summarizingChatReducer: new SummarizingChatReducer(lightChatClient, 2, 3), toolCallReducer: new ToolCallReducer()),
                          AIContextProviders = [new TextSearchProvider(textSearchAdapter.Search, new() {SearchTime = TextSearchProviderOptions.TextSearchBehavior.BeforeAIInvoke, RecentMessageMemoryLimit = 5})
                          ],
 
@@ -74,7 +77,7 @@ namespace infrastructure.Agents.Factory
                  )
                  .AsBuilder()
                   .Use(classifierMiddleware.Classify, null)
-                // .Use(guardRailMiddleware.JailBreakDetection, null)
+                 // .Use(guardRailMiddleware.JailBreakDetection, null)
                  //.Use(sp.GetRequiredService<IGuardRailMiddleware>().PersonalCategoryDetection, null)
                  .Use(guardRailMiddleware.GroudnessDetection, null)
                  .Build();

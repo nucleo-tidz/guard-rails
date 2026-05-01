@@ -29,15 +29,15 @@
             }
             var searchState=  session.StateBag.GetValue<TextSearchProviderState>("TextSearchProvider");
             
-            var data = _sharedContext.ragContexts;
-            var grounded = await groundnessDetector.DetectGroundness(string.Join("\n", searchState.RecentMessagesText.TakeLast(2)),
-                 response.Text,
-                 data.Select(_ => _.Text).ToList());
-            if (grounded.UngroundedPercentage > 0.70)
-            {
-                var warningMessage = $"{response.Text}\n\n⚠️ **Disclaimer**: This response may contain information not based on verified facts . Please verify critical information from official sources.";
-                response = new Microsoft.Agents.AI.AgentResponse(new ChatMessage(ChatRole.Assistant, warningMessage));
-            }
+            //var data = _sharedContext.ragContexts;
+            //var grounded = await groundnessDetector.DetectGroundness(string.Join("\n", searchState.RecentMessagesText.TakeLast(2)),
+            //     response.Text,
+            //     data.Select(_ => _.Text).ToList());
+            //if (grounded.UngroundedPercentage > 0.70)
+            //{
+            //    var warningMessage = $"{response.Text}\n\n⚠️ **Disclaimer**: This response may contain information not based on verified facts . Please verify critical information from official sources.";
+            //    response = new Microsoft.Agents.AI.AgentResponse(new ChatMessage(ChatRole.Assistant, warningMessage));
+            //}
             return response;
         }
 

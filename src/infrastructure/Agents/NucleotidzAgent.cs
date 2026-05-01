@@ -3,13 +3,16 @@
     using application.Services.Interfaces;
     using infrastructure.Agents.Factory;
     using infrastructure.Session;
+
+    using Microsoft.Agents.AI;
+
     using System.Text.Json;
 
     internal class NucleotidzAgent(IAgentFactory agentFactory, ISessionProvider sessionProvider) : INucleotidzAgent
     {
         public async Task<string> Start(string message)
         {
-            var agent = agentFactory.Create();
+            var agent = agentFactory.Create();           
             var session = await sessionProvider.Provide(agent);
             var response = await agent.RunAsync(message, session);
             JsonElement serializedSession = await agent.SerializeSessionAsync(session);
