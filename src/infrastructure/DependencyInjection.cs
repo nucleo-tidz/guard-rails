@@ -26,6 +26,7 @@ namespace infrastructure
 
     using OpenAI.Chat;
     using infrastructure.Session;
+    using infrastructure.RateLimiters;
 
     public static class DependencyInjection
     {
@@ -46,7 +47,8 @@ namespace infrastructure
                 .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>()
                 .AddScoped<IClassifierMiddleware, ClassifierMiddleware>()
                 .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
-                .AddScoped<IChatHistoryReader, RedisChatHistoryReader>();
+                .AddScoped<IChatHistoryReader, RedisChatHistoryReader>()
+                .AddScoped<IFixedWindowLimiter, FixedWindowLimiter>();
         }
         public static IServiceCollection AddAzureOpenAI(this IServiceCollection services, IConfiguration configuration)
         {

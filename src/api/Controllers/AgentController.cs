@@ -8,15 +8,14 @@
 
     [Route("api/[controller]")]
     [ApiController]
+    [ServiceFilter(typeof(RateLimiterFilter))]
     [ServiceFilter(typeof(ContextInitializationFilter))]
     public class AgentController(INucleotidzAgentService nucleotidzAgent, ISharedContextService sharedContextService) : ControllerBase
     {
         [HttpGet("chat/{message}/{username}/thread/{threadId}")]
-        [HttpGet("chat/{message}/{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Chat(string message, string username, string? threadId)
+        public async Task<IActionResult> Chat(string message, string username, string? threadId, [FromHeader(Name ="x-client")] string clientId)
         {
-          
             var response = await nucleotidzAgent.Start( message);
             return Ok(response);
         }
