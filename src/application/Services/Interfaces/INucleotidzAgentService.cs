@@ -1,11 +1,10 @@
 ﻿namespace application.Services.Interfaces
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+    using model;
 
     public interface INucleotidzAgentService
     {
         Task<string> Start( string message);
+        Task OnBoard(TokenLimitModel tokenLimitModel);
     }
 }

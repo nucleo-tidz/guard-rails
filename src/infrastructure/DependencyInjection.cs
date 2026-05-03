@@ -27,6 +27,8 @@ namespace infrastructure
     using OpenAI.Chat;
     using infrastructure.Session;
     using infrastructure.RateLimiters;
+    using infrastructure.Agents.TokenManager;
+    using infrastructure.Repository;
 
     public static class DependencyInjection
     {
@@ -36,6 +38,7 @@ namespace infrastructure
 
             return services
                 .AddScoped<IEmbedService, EmbedService>()
+                .AddScoped<IOnBoardRepository, OnBoardRepository>()
                 .AddScoped<ITextSearchAdapter, TextSearchAdapter>()
                 .AddScoped<INucleotidzAgent, NucleotidzAgent>()
                 .AddScoped<IAgentFactory, AgentFactory>()
@@ -44,7 +47,7 @@ namespace infrastructure
                 .AddScoped<IGuardRailMiddleware, GuardRailMiddleware>()
                 .AddScoped<IClassifierMiddleware, ClassifierMiddleware>()
                 .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
-                .AddScoped<IChatHistoryReader, RedisChatHistoryReader>()
+                .AddScoped<IChatHistoryReader, RedisChatHistoryReader>().AddScoped<ITokenLimiter, TokenLimiter>()
                 .AddRedis(configuration)
                 .AddScoped<ILimiter, SlidingWindowLimiter>();
         }

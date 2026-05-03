@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<TokenRateLimiter>();
 builder.Services.AddScoped<RateLimiterFilter>();
 builder.Services.AddScoped<ContextInitializationFilter>();
 builder.Services.AddScoped<ISharedContext, SharedContext>();
