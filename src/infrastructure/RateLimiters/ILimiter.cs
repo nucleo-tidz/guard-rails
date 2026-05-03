@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public interface IFixedWindowLimiter
+    public interface ILimiter
     {
         Task<bool> IsRequestAllowedAsync(string key);
     }

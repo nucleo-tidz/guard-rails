@@ -6,7 +6,7 @@
 
     using Microsoft.AspNetCore.Mvc.Filters;
 
-    public class RateLimiterFilter(IFixedWindowLimiter fixedWindowLimiter) : IAsyncActionFilter
+    public class RateLimiterFilter(ILimiter fixedWindowLimiter) : IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {

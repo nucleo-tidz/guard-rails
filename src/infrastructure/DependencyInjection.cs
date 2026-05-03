@@ -48,7 +48,7 @@ namespace infrastructure
                 .AddScoped<IClassifierMiddleware, ClassifierMiddleware>()
                 .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
                 .AddScoped<IChatHistoryReader, RedisChatHistoryReader>()
-                .AddScoped<IFixedWindowLimiter, FixedWindowLimiter>();
+                .AddScoped<ILimiter, SlidingWindowLimiter>();
         }
         public static IServiceCollection AddAzureOpenAI(this IServiceCollection services, IConfiguration configuration)
         {

@@ -5,7 +5,7 @@
 
     using StackExchange.Redis;
 
-    public class FixedWindowLimiter(IConnectionMultiplexer connectionMultiplexer) : IFixedWindowLimiter
+    public class FixedWindowLimiter(IConnectionMultiplexer connectionMultiplexer) : ILimiter
     {
         private readonly TimeSpan window= TimeSpan.FromMinutes(5);
         private readonly int threshold = 2;
