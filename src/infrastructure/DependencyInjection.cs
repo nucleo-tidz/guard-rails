@@ -32,10 +32,7 @@ namespace infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var redisConnectionString = configuration["Redis:ConnectionString"]
-                ?? throw new InvalidOperationException("Missing configuration: Redis:ConnectionString");
-
-            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
+          
 
             return services
                 .AddScoped<IEmbedService, EmbedService>()
@@ -48,7 +45,23 @@ namespace infrastructure
                 .AddScoped<IClassifierMiddleware, ClassifierMiddleware>()
                 .AddScoped<IQueryIntentClassifier, QueryIntentClassifier>()
                 .AddScoped<IChatHistoryReader, RedisChatHistoryReader>()
+                .AddRedis(configuration)
                 .AddScoped<ILimiter, SlidingWindowLimiter>();
+        }
+
+        public static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration configuration)
+        {
+            var section = configuration.GetSection(RedisOption.SectionName);
+            var options = Microsoft.Extensions.Configuration.ConfigurationBinder.Get<RedisOption>(section)
+           ?? throw new InvalidOperationException($"Missing configuration section: {RedisOption.SectionName}");
+
+            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(new ConfigurationOptions
+            {
+                EndPoints = { { options.EndPoints, options.Port } },
+                User = options.UserName,
+                Password = options.Password,
+            }));
+            return services;
         }
         public static IServiceCollection AddAzureOpenAI(this IServiceCollection services, IConfiguration configuration)
         {
