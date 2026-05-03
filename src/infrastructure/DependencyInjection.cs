@@ -32,7 +32,7 @@ namespace infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-          
+
 
             return services
                 .AddScoped<IEmbedService, EmbedService>()
@@ -60,6 +60,7 @@ namespace infrastructure
                 EndPoints = { { options.EndPoints, options.Port } },
                 User = options.UserName,
                 Password = options.Password,
+                SyncTimeout = options.SyncTimeout
             }));
             return services;
         }
@@ -78,7 +79,7 @@ namespace infrastructure
                 s.EmbeddingModelName = options.EmbeddingModelName;
             });
 
-            var client = new Azure.AI.OpenAI.AzureOpenAIClient(new Uri(options.Endpoint), new System.ClientModel.ApiKeyCredential(options.ApiKey));          
+            var client = new Azure.AI.OpenAI.AzureOpenAIClient(new Uri(options.Endpoint), new System.ClientModel.ApiKeyCredential(options.ApiKey));
 
             services.AddKeyedChatClient("gpt", client.GetChatClient(options.ChatModelName).AsIChatClient());
             services.AddKeyedChatClient("mini", client.GetChatClient(options.LightChatModelName).AsIChatClient());

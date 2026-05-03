@@ -12,15 +12,14 @@
 
     using StackExchange.Redis;
 
-    public class EmbedService: IEmbedService
+    public class EmbedService : IEmbedService
     {
         private readonly RedisVectorStore vectorStore;
 
 
-        public EmbedService(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)
+        public EmbedService(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, IConnectionMultiplexer connectionMultiplexer)
         {
-            IConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-            vectorStore = new RedisVectorStore(redis.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
+            vectorStore = new RedisVectorStore(connectionMultiplexer.GetDatabase(), new RedisVectorStoreOptions { EmbeddingGenerator = embeddingGenerator });
         }
 
         public async Task SeedDataAsync(string documentContent, string sourceFileName, int chunkSize = 200, int overlap = 50)

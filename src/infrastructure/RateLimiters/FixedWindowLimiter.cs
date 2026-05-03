@@ -7,8 +7,8 @@
 
     public class FixedWindowLimiter(IConnectionMultiplexer connectionMultiplexer) : ILimiter
     {
-        private readonly TimeSpan window= TimeSpan.FromMinutes(5);
-        private readonly int threshold = 2;
+        private readonly TimeSpan window = TimeSpan.FromSeconds(5);
+        private readonly int threshold = 10;
         public Task<bool> IsRequestAllowedAsync(string key)
         {
             string redisKey = $"RateLimit:FixedWindow:{key}";

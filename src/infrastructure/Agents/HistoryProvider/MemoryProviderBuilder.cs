@@ -19,14 +19,13 @@ namespace infrastructure.Agents.HistoryProvider
         private string _sessionId = string.Empty;
 
         public MemoryProviderBuilder(            
-            IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)
-        {
-            IConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+            IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator,IConnectionMultiplexer connectionMultiplexer)
+        {           
             var vectorStoreOptions = new RedisVectorStoreOptions
             {
                 EmbeddingGenerator = embeddingGenerator
             };
-            _vectorStore = new RedisVectorStore(redis.GetDatabase(), vectorStoreOptions);
+            _vectorStore = new RedisVectorStore(connectionMultiplexer.GetDatabase(), vectorStoreOptions);
         }
 
         public MemoryProviderBuilder WithCollectionName(string collectionName)
